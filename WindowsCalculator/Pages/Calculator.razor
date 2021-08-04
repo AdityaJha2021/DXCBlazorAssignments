@@ -1,0 +1,130 @@
+﻿@page "/calculator"
+
+<style>
+    .calculator {
+        width: 50px;
+        height: 50px;
+    }
+</style>
+<h3 class="text-center">Calculator</h3>
+    <div class="row justify-content-center m-3">
+        <div class="col-sm-6">
+            <div class="card">
+                <div class="card-header">
+                    <textarea style="text-align:right;width:210px;height:70px">@FirstText@operation@SecondText@equalToSign@resultText</textarea>
+                    
+                </div>
+                <div class="card-body">
+                    <button class="calculator" @onclick="()=>btn_click('7')">7</button>
+                    <button class="calculator" @onclick="()=>btn_click('8')">8</button>
+                    <button class="calculator" @onclick="()=>btn_click('9')">9</button>
+                    <button class="calculator" @onclick="()=>btn_math('X')">X</button><br />
+                    <button class="calculator" @onclick="()=>btn_click('4')">4</button>
+                    <button class="calculator" @onclick="()=>btn_click('5')">5</button>
+                    <button class="calculator" @onclick="()=>btn_click('6')">6</button>
+                    <button class="calculator" @onclick="()=>btn_math('-')">-</button><br />
+                    <button class="calculator" @onclick="()=>btn_click('1')">1</button>
+                    <button class="calculator" @onclick="()=>btn_click('2')">2</button>
+                    <button class="calculator" @onclick="()=>btn_click('3')">3</button>
+                    <button class="calculator" @onclick="()=>btn_math('+')">+</button><br />
+                    <button class="calculator" @onclick="()=>btn_math('/')">/</button>
+                    <button class="calculator" @onclick="()=>btn_click('0')">0</button>
+                    <button class="calculator" @onclick="()=>btn_click('.')">.</button>
+                    <button class="calculator" @onclick="Perform_operation">=</button><br /><br />
+                    <input type="button" style="width: 210px;" class="btn btn-danger" value="Clear" @onclick="btn_cancel" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+@code {
+    public string FirstText { get; set; }
+    public string SecondText { get; set; }
+    public string operation { get; set; }
+    public double first { get; set; }
+    public double second { get; set; }
+    public string equalToSign { get; set; }
+    public double result { get; set; }
+    public string resultText { get; set; }
+    public bool isOperationPerformed { get; set; }
+
+    public void btn_click(char value)
+    {
+        if (FirstText == "0")
+        {
+            FirstText = null;
+        }
+        if (isOperationPerformed)
+        {
+            SecondText += value.ToString();
+        }
+        else
+        {
+            FirstText += value.ToString();
+        }
+    }
+    public void btn_math(char value)
+    {
+        isOperationPerformed = true;
+        operation = value.ToString();
+    }
+    public void Perform_operation()
+    {
+        equalToSign = "=";
+        first = double.Parse(FirstText);
+        second = double.Parse(SecondText);
+        switch (operation)
+        {
+            case "+":
+                result = first + second;
+                break;
+            case "-":
+                result = first - second;
+                break;
+            case "X":
+                result = first * second;
+                break;
+            case "/":
+                result = first / second;
+                break;
+        }
+        resultText = result.ToString();
+    }
+    public void btn_cancel()
+    {
+        FirstText = "0";
+        first = 0;
+        SecondText = null;
+        second = 0;
+        operation = null;
+        resultText = null;
+        result = 0;
+        equalToSign = null;
+        isOperationPerformed = false;
+    }
+
+    private MathObj math;
+    // define an instance of the math object in the initialization of the component
+
+    protected override void OnInitialized()
+    {
+        FirstText = "0";
+        base.OnInitialized();
+    }
+
+
+
+    void Add()
+    {
+
+        math.Res = (math.X + math.Y).ToString();
+    }
+
+
+    public class MathObj
+    {
+        public int X { get; set; }
+        public int Y { get; set; }
+        public string Res { get; set; }
+    }
+}
