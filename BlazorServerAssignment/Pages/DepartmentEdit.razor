@@ -1,0 +1,47 @@
+﻿@page "/editdept/{id:int}"
+@using BlazorServerAssignment.Models
+@using BlazorServerAssignment.Services
+@inject IService<Department, int> service
+@inject NavigationManager navigate
+
+<h3>Edit Department</h3>
+<div class="container">
+    <EditForm Model="@department">
+        <div class="form-group">
+            <label>Department Number</label>
+            <InputNumber @bind-Value="@department.DeptNo" class="form-control"></InputNumber>
+        </div>
+        <div class="form-group">
+            <label>Department Name</label>
+            <InputText @bind-Value="@department.DeptName" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+            <InputText @bind-Value="@department.Location" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <input type="button" class="btn btn-warning" value="Clear" @onclick="Clear" />
+            <input type="button" class="btn btn-primary" value="Save" @onclick="Save" />
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+    Department department;
+    protected override async Task OnInitializedAsync()
+    {
+        department = new Department();
+        department = await service.GetAsync(id);
+    }
+    public void Clear()
+    {
+        department = new Department();
+    }
+    public async Task Save()
+    {
+        await service.UpdateAsync(id,department);
+        navigate.NavigateTo("/deptlist");
+    }
+}

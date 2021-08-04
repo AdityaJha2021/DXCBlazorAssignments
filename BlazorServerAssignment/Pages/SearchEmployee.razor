@@ -1,0 +1,55 @@
+﻿@page "/employee/{id:int}"
+@using BlazorServerAssignment.Services
+@using BlazorServerAssignment.Models
+@inject IService<Employee, int> service
+
+
+<h3>Employees in Department @id</h3>
+<div class="container">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>Employee Name</th>
+                <th>Designation</th>
+                <th>Salary</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (employees.Count != 0)
+             {
+                @foreach (var employee in employees)
+                 {
+                    <tr>
+                        <td>@employee.EmpName</td>
+                        <td>@employee.Designation</td>
+                        <td>@employee.Salary</td>
+                    </tr>
+                 }
+             }
+            else
+            {
+                <tr>
+                    <td colspan="3" class="text-center">No record found</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    List<Employee> employees;
+
+    protected override async Task OnInitializedAsync()
+    {
+        employees = new List<Employee>();
+        var res = await service.GetAsync();
+        var result = res.ToList();
+        foreach (var employee in result)
+        {
+            if (employee.DeptNo == id) employees.Add(employee);
+        }
+    }
+}

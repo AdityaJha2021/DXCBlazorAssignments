@@ -1,0 +1,95 @@
+﻿@page "/deptlist"
+@using BlazorServerAssignment.Models
+@using BlazorServerAssignment.Services
+@using System.Reflection
+
+@inject IService<Department, int> service
+@inject IService<Employee, int> empService
+@inject NavigationManager navigate
+
+<h3>Department List</h3>
+<button class="btn btn-link" @onclick="NavigateToCreate">Add new Department</button>
+<div class="container">
+    <table class="table table-striped table-bordered">
+        <thead>
+
+            <tr>
+                @foreach (var column in columns)
+                {
+                    <th>@column</th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var department in departments)
+            {
+                <tr>
+                    @foreach (var column in columns)
+                    {
+                        <td>@department.GetType().GetProperty(column).GetValue(department, null)</td>
+                    }
+                    <td><button class="btn btn-primary" @onclick="()=>navigateToEdit(department.DeptNo)">Edit</button></td>
+                    <td><button class="btn btn-outline-primary" @onclick="()=>navigateToListEmployee(department.DeptNo)">View Employee</button></td>
+                    @if (employees.Where(e => e.DeptNo == department.DeptNo).ToList().Count == 0)
+                    {
+                        <td><button class="btn btn-danger" @onclick="()=>Delete(department.DeptNo)">Delete</button></td>
+                    }
+                    else
+                    {
+                        <td><button disabled class="btn btn-danger" @onclick="()=>Delete(department.DeptNo)">Delete</button></td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+
+@code {
+    Department department;
+    List<Department> departments;
+    List<string> columns;
+    List<Employee> employees;
+    public bool empPresent { get; set; }
+
+    //[Inject]
+    //IService<Department, int> service { get; set; }
+    protected async override Task OnInitializedAsync()
+    {
+        departments = new List<Department>();
+        department = new Department();
+        columns = new List<string>();
+
+        //reading properties of Department
+        PropertyInfo[] properties = department.GetType().GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly | BindingFlags.Instance);
+        foreach (var property in properties)
+        {
+            if (property.Name != "Employees")
+                columns.Add(property.Name);
+        }
+        var result = await service.GetAsync();
+        departments = result.OrderBy(d=>d.DeptName).ToList();
+
+        employees = new List<Employee>();
+        var empresult = await empService.GetAsync();
+        employees = empresult.ToList();
+    }
+
+    public void NavigateToCreate()
+    {
+        navigate.NavigateTo("/adddept");
+    }
+    public void navigateToEdit(int id)
+    {
+        navigate.NavigateTo($"/editdept/{id}");
+    }
+    public void navigateToListEmployee(int id)
+    {
+        navigate.NavigateTo($"/employee/{id}");
+    }
+    public async void Delete(int id)
+    {
+        if (employees.Count != 0) await service.DeleteAsync(id);
+        navigate.NavigateTo("/deptlist", true);
+    }
+}

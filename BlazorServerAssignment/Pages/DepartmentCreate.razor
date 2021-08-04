@@ -1,0 +1,45 @@
+﻿@page "/adddept"
+@using BlazorServerAssignment.Models
+@using BlazorServerAssignment.Services
+@inject IService<Department, int> service   
+@inject NavigationManager navigate
+
+<h3>Create Department</h3>
+<div class="container">
+    <EditForm Model="@department">
+        <div class="form-group">
+            <label>Department Number</label>
+            <InputNumber @bind-Value="@department.DeptNo" class="form-control"></InputNumber>
+        </div>
+        <div class="form-group">
+            <label>Department Name</label>
+            <InputText @bind-Value="@department.DeptName" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <label>Location</label>
+            <InputText @bind-Value="@department.Location" class="form-control"></InputText>
+        </div>
+        <div class="form-group">
+            <input type="button" class="btn btn-warning" value="Clear" @onclick="Clear"/>
+            <input type="button" class="btn btn-primary" value="Save" @onclick="Save" />
+        </div>
+    </EditForm>
+</div>
+
+@code {
+    Department department;
+    protected override void OnInitialized()
+    {
+        department = new Department();
+        base.OnInitialized();
+    }
+    public void Clear()
+    {
+        department = new Department();
+    }
+    public async Task Save()
+    {
+        await service.CreateAsync(department);
+        navigate.NavigateTo("/deptlist");
+    }
+}
